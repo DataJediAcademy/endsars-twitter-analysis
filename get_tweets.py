@@ -1,8 +1,8 @@
 import pandas as pd
-import numpy as np
 from searchtweets import gen_request_parameters, load_credentials, collect_results
 from datetime import datetime, timedelta, date
-
+import logging
+logging.getLogger().setLevel(logging.INFO)
 
 bode_all_search_args = load_credentials(".twitter_keys.yaml",
                                         yaml_key="search_tweets_all_bode_v2",
@@ -65,28 +65,31 @@ def create_tweets_df(dates_list,
 "lekki massacre" OR "End bad governance" OR "End swat" OR #LekkiMassacre lang:en""",
                      tweet_resp_fields="""id,author_id,created_at,text,geo,referenced_tweets,in_reply_to_user_id,entities,public_metrics""",
                      expansions_resp_fields="""author_id,entities.mentions.username,geo.place_id,in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id""",
-                     user_resp_fields="id,created_at,location,username,verified,public_metrics",
+                     # user_resp_fields="id,created_at,location,username,verified,public_metrics",
                      place_resp_fields="country,country_code,full_name,geo,id,name,place_type"):
     """
     Create a function that Creates a dataframe from the tweets you've retrieved using the retieve_tweets function
     you created above. This functions should also take a list of datest you want to get tweets from
     """
     tweets = []
-    for date in dates_list:
-        tweets += retrieve_tweets(start_date=date, end_date=get_dt_after(start_date=date),
+    logging.info('Starting to retrieve tweets')
+    for dt in dates_list:
+        end_date = get_dt_after(start_date=dt)
+        logging.info(f'Retrieving tweets from {dt} to {end_date}')
+        tweets += retrieve_tweets(start_date=dt, end_date=end_date,
                                   max_tweets=max_tweets, results_per_call=results_per_call,
                                   search_args=search_args, keywords_query=keywords_query,
-                                  tweet_resp_fields=tweet_resp_fields, user_resp_fields=user_resp_fields,
+                                  tweet_resp_fields=tweet_resp_fields,
+                                  # user_resp_fields=user_resp_fields,
                                   place_resp_fields=place_resp_fields, expansions_resp_fields=expansions_resp_fields
                                   )
+    logging.info('Finished retrieving tweets')
     df = pd.DataFrame(tweets)
     df.to_pickle(f"./data/endsars_tweets_{dates_list[0].replace('-', '')}_{dates_list[-1].replace('-', '')}.pkl")
+    logging.info('Finished process and saved tweets to pickle file')
 
 
 if __name__ == '__main__':
     dates = []
-    for dt in range(2, 8):
-        dates += days_cur_month(m=dt, y=2020)
-    dates += days_cur_month(12, 2020)
-    dates += days_cur_month()
-    create_tweets_df(dates_list=dates, max_tweets=5000)
+    dates += days_cur_month(8, 2020)
+    create_tweets_df(dates_list=dates, max_tweets=10000)

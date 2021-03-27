@@ -130,3 +130,4 @@ dmypy.json
 
 # Twitter keys
 .twitter_keys.yaml
+/data/*
