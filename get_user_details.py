@@ -12,13 +12,11 @@ my_search_args = load_credentials(".twitter_keys.yaml",
 
 
 def create_url(user_ids, user_fields="user.fields=username,name,created_at,location,verified,public_metrics"):
-    url = "https://api.twitter.com/2/users?ids={}&{}".format(user_ids, user_fields)
-    return url
+    return "https://api.twitter.com/2/users?ids={}&{}".format(user_ids, user_fields)
 
 
 def create_headers(bearer_token):
-    headers = {"Authorization": "Bearer {}".format(bearer_token)}
-    return headers
+    return {"Authorization": "Bearer {}".format(bearer_token)}
 
 
 def connect_to_endpoint(url, headers):
